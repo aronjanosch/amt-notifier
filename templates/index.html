@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bürgerbüro Availability Monitor</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+        h1 { text-align: center; color: #333; }
+        .location { border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 8px; background-color: #fff; }
+        .location h2 { margin-top: 0; color: #555; }
+        .dates { list-style-type: none; padding: 0; }
+        .dates li { background: #e0ffe0; margin: 5px 0; padding: 10px; border-radius: 4px; }
+        .no-dates { color: #888; }
+        @media (max-width: 600px) {
+            body { margin: 10px; }
+            .location { padding: 10px; }
+        }
+    </style>
+    <!-- Embed locationNames into JavaScript context -->
+    <script type="text/javascript">
+        const locationNames = {{ location_names | tojson }};
+    </script>
+    <script>
+        async function fetchAvailability() {
+            try {
+                const response = await fetch('/api/availability');
+                const data = await response.json();
+                updateUI(data);
+            } catch (error) {
+                console.error('Error fetching availability data:', error);
+            }
+        }
+
+        function updateUI(data) {
+            const locationsDiv = document.getElementById('locations');
+            locationsDiv.innerHTML = ''; // Clear existing content
+
+            for (const [locationId, dates] of Object.entries(data)) {
+                const locationDiv = document.createElement('div');
+                locationDiv.className = 'location';
+
+                const header = document.createElement('h2');
+                const locationName = locationNames[locationId] || `Location ${locationId}`;
+                header.textContent = locationName;
+                locationDiv.appendChild(header);
+
+                if (dates.length > 0) {
+                    const ul = document.createElement('ul');
+                    ul.className = 'dates';
+                    dates.forEach(date => {
+                        const li = document.createElement('li');
+                        li.textContent = date;
+                        ul.appendChild(li);
+                    });
+                    locationDiv.appendChild(ul);
+                } else {
+                    const p = document.createElement('p');
+                    p.className = 'no-dates';
+                    p.textContent = 'No dates available.';
+                    locationDiv.appendChild(p);
+                }
+
+                locationsDiv.appendChild(locationDiv);
+            }
+        }
+
+        // Initial fetch
+        fetchAvailability();
+
+        // Fetch data every minute
+        setInterval(fetchAvailability, 60000); // 60000ms = 1 minute
+    </script>
+</head>
+<body>
+    <h1>Bürgerbüro Availability Monitor</h1>
+    <div id="locations">
+        <!-- Content will be populated by JavaScript -->
+    </div>
+</body>
+</html>

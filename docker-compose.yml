@@ -1,0 +1,10 @@
+services:
+  monitor:
+    build: .
+    ports:
+      - "8088:8088"
+    environment:
+      FETCH_INTERVAL_MINUTES: 5  # Fetching interval in minutes
+      NOTIFICATION_METHODS: email  # Currently only email is implemented
+      SESSION_REFRESH_INTERVAL_MINUTES: 30  # Refreshing session interval in minutes
+    restart: unless-stopped
