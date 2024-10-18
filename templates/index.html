@@ -4,17 +4,7 @@
     <meta charset="UTF-8">
     <title>Bürgerbüro Availability Monitor</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
-        h1 { text-align: center; color: #333; }
-        .location { border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 8px; background-color: #fff; }
-        .location h2 { margin-top: 0; color: #555; }
-        .dates { list-style-type: none; padding: 0; }
-        .dates li { background: #e0ffe0; margin: 5px 0; padding: 10px; border-radius: 4px; }
-        .no-dates { color: #888; }
-        @media (max-width: 600px) {
-            body { margin: 10px; }
-            .location { padding: 10px; }
-        }
+        /* (Your CSS styles here) */
     </style>
     <!-- Embed locationNames into JavaScript context -->
     <script type="text/javascript">
@@ -56,7 +46,7 @@
                 } else {
                     const p = document.createElement('p');
                     p.className = 'no-dates';
-                    p.textContent = 'No dates available.';
+                    p.textContent = 'Keine Termine verfügbar.';
                     locationDiv.appendChild(p);
                 }
 

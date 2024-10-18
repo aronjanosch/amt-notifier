@@ -1,11 +1,11 @@
 # app.py
 
-from flask import Flask
+from flask import Flask, render_template, jsonify
 import logging
 import threading
 import atexit
 
-from config import TELEGRAM_TOKEN
+from config import TELEGRAM_TOKEN, LOCATION_NAMES
 from database import Base, engine
 from services.session_manager import SessionManager
 from services.availability_fetcher import AvailabilityFetcher
@@ -32,6 +32,10 @@ app = Flask(__name__)
 # Setup logging
 logging.basicConfig(level=logging.INFO,
                     format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
+
+# Initialize SessionManager and AvailabilityFetcher globally
+session_manager = SessionManager()
+availability_fetcher = AvailabilityFetcher(session_manager, TELEGRAM_TOKEN)
 
 def main():
     # Initialize SessionManager
@@ -84,8 +88,25 @@ def main():
     atexit.register(lambda: scheduler.shutdown())
     atexit.register(lambda: updater.stop())
 
-    # Run the Flask app
-    app.run(host='0.0.0.0', port=8088)
+    # Run the Flask app in a separate thread
+    def run_flask():
+        app.run(host='0.0.0.0', port=8088)
+
+    flask_thread = threading.Thread(target=run_flask)
+    flask_thread.start()
+
 
 if __name__ == '__main__':
     main()
+
+
+@app.route('/')
+def index():
+    """Serve the main page."""
+    return render_template('index.html', location_names=LOCATION_NAMES)
+
+@app.route('/api/availability')
+def api_availability():
+    """Provide availability data in JSON format."""
+    data = availability_fetcher.get_availability_data()
+    return jsonify(data)
